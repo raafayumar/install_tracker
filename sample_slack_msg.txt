@@ -1,0 +1,368 @@
+Current annotation progress:
+Includes datasets edited since 09-03-26:
+--------------------
+    Summary:
+    Sunix is working on 30 frames with 4 workers:
+         * Annotation: 30 (30-ppe frames )
+         * Review: 0 ()
+
+    Cogito is working on 120 frames with 35 workers:
+         * Annotation: 120 (120-ppe frames )
+         * Review: 0 ()
+
+    Abelling is working on 223 frames with 83 workers:
+         * Annotation: 150 (150-v2 frames )
+         * Review: 73 (73-v2 frames )
+--------------------
+Sunix_v2
+Protex Review: 637 tasks (17480 frames)
+     datasets: 672-1036, 151-274
+
+
+
+     Total tasks to annotate: 0
+--------------------
+Sunix-ppe
+Annotate     : 1 tasks (30 frames)
+     datasets: 436-690
+Protex Review: 14 tasks (370 frames)
+     datasets: 436-690
+
+
+
+     Total tasks to annotate: 1
+--------------------
+Cogito_v2
+Protex Review: 13 tasks (350 frames)
+     datasets: 320-1163
+
+
+
+     Total tasks to annotate: 0
+--------------------
+Cogito-ppe
+Annotate     : 4 tasks (120 frames)
+     datasets: 672-1038, 320-1162
+Protex Review: 441 tasks (12572 frames)
+     datasets: 505-764, 672-1038, 320-1162, 672-1045, 429-991, 1000-1161, 672-1037, 672-1042, 320-1163
+
+
+
+     Total tasks to annotate: 4
+--------------------
+Abelling_v2
+Annotate     : 5 tasks (150 frames)
+     datasets: 150-972, 990-991
+Review       : 3 tasks (73 frames)
+     datasets: 150-972, 990-991
+Protex Review: 433 tasks (12130 frames)
+     datasets: 1033-1265, 980-939, 946-901, 150-972
+
+
+
+     Total tasks to annotate: 8
+--------------------
+Abelling-ppe
+Protex Review: 928 tasks (26593 frames)
+     datasets: 672-1036, 429-863, 1033-1265, 150-263, 672-948, 150-972
+
+
+
+     Total tasks to annotate: 0
+
+
+
+
+
+To annotate = Annotate + Review stages
+Message labelling-jobs-updates
+
+
+
+
+
+Current annotation progress:
+Includes datasets edited since 08-03-26:
+--------------------
+    Summary:
+    Sunix is working on 560 frames with 55 workers:
+         * Annotation: 530 (400-v2 frames 130-ppe frames )
+         * Review: 30 (30-v2 frames )
+
+    Cogito is working on 120 frames with 39 workers:
+         * Annotation: 120 (120-ppe frames )
+         * Review: 0 ()
+
+    Abelling is working on 490 frames with 154 workers:
+         * Annotation: 210 (210-v2 frames )
+         * Review: 280 (180-v2 frames 100-ppe frames )
+--------------------
+Sunix_v2
+Annotate     : 16 tasks (400 frames)
+     datasets: 672-1036
+Review       : 1 tasks (30 frames)
+     datasets: 320-1078
+Protex Review: 648 tasks (17690 frames)
+     datasets: 672-1036, 151-274, 320-1078
+
+
+
+     Total tasks to annotate: 17
+--------------------
+Sunix-ppe
+Annotate     : 5 tasks (130 frames)
+     datasets: 436-690
+Protex Review: 3 tasks (70 frames)
+     datasets: 436-690
+
+
+
+     Total tasks to annotate: 5
+--------------------
+Cogito_v2
+Protex Review: 94 tasks (2600 frames)
+     datasets: 320-1163, 150-936
+
+
+
+     Total tasks to annotate: 0
+--------------------
+Cogito-ppe
+Annotate     : 4 tasks (120 frames)
+     datasets: 672-1038, 320-1162
+Protex Review: 475 tasks (13561 frames)
+     datasets: 505-764, 672-1038, 320-1162, 672-1045, 429-991, 1000-1161, 672-1037, 672-1042, 320-1163, 150-936
+
+
+
+     Total tasks to annotate: 4
+--------------------
+Abelling_v2
+Annotate     : 7 tasks (210 frames)
+     datasets: 150-972
+Review       : 6 tasks (180 frames)
+     datasets: 150-972
+Protex Review: 572 tasks (15800 frames)
+     datasets: 1033-1265, 980-939, 946-901, 436-690, 150-972
+
+
+
+     Total tasks to annotate: 13
+--------------------
+Abelling-ppe
+Review       : 4 tasks (100 frames)
+     datasets: 150-972
+Protex Review: 1016 tasks (29083 frames)
+     datasets: 1033-1265, 672-1036, 429-863, 150-263, 672-948, 150-972
+
+
+
+     Total tasks to annotate: 4
+
+
+
+
+
+To annotate = Annotate + Review stages
+
+
+
+
+
+
+
+Current annotation progress:
+Includes datasets edited since 07-03-26:
+--------------------
+    Summary:
+    Sunix is working on 240 frames with 61 workers:
+         * Annotation: 30 (30-ppe frames )
+         * Review: 210 (210-v2 frames )
+
+    Cogito is working on 1490 frames with 60 workers:
+         * Annotation: 850 (660-v2 frames 190-ppe frames )
+         * Review: 640 (640-v2 frames )
+
+    Abelling is working on 560 frames with 149 workers:
+         * Annotation: 380 (240-v2 frames 140-ppe frames )
+         * Review: 180 (120-v2 frames 60-ppe frames )
+--------------------
+Sunix_v2
+Review       : 9 tasks (210 frames)
+     datasets: 320-1078
+Protex Review: 640 tasks (17510 frames)
+     datasets: 672-1036, 151-274, 320-1078
+
+
+
+     Total tasks to annotate: 9
+--------------------
+Sunix-ppe
+Annotate     : 1 tasks (30 frames)
+     datasets: 436-690
+Protex Review: 3 tasks (70 frames)
+     datasets: 436-690
+
+
+
+     Total tasks to annotate: 1
+--------------------
+Cogito_v2
+Annotate     : 22 tasks (660 frames)
+     datasets: 150-936
+Review       : 24 tasks (640 frames)
+     datasets: 150-936
+Protex Review: 48 tasks (1300 frames)
+     datasets: 320-1163, 150-936
+
+
+
+     Total tasks to annotate: 46
+--------------------
+Cogito-ppe
+Annotate     : 7 tasks (190 frames)
+     datasets: 1000-1161, 672-1045, 320-1163, 672-1038, 320-1162
+Protex Review: 483 tasks (13761 frames)
+     datasets: 320-1162, 505-764, 672-1038, 672-1045, 429-991, 1000-1161, 672-1037, 672-1042, 320-1163, 150-936
+
+
+
+     Total tasks to annotate: 7
+--------------------
+Abelling_v2
+Annotate     : 10 tasks (240 frames)
+     datasets: 150-972
+Review       : 4 tasks (120 frames)
+     datasets: 436-690, 150-972
+Protex Review: 557 tasks (15410 frames)
+     datasets: 1033-1265, 980-939, 946-901, 436-690
+
+
+
+     Total tasks to annotate: 14
+--------------------
+Abelling-ppe
+Annotate     : 6 tasks (140 frames)
+     datasets: 150-972
+Review       : 2 tasks (60 frames)
+     datasets: 150-972
+Protex Review: 1144 tasks (32803 frames)
+     datasets: 1033-1265, 672-1036, 429-863, 150-263, 672-948
+
+
+
+     Total tasks to annotate: 8
+
+
+
+
+
+To annotate = Annotate + Review stages
+
+
+
+
+
+
+Current annotation progress:
+Includes datasets edited since 13-03-26:
+--------------------
+    Summary:
+    Sunix is working on 11350 frames with 20 workers:
+         * Annotation: 6520 (6520-ppe frames )
+         * Review: 4830 (4830-ppe frames )
+
+    Cogito is working on 20790 frames with 56 workers:
+         * Annotation: 17070 (13900-v2 frames 3170-ppe frames )
+         * Review: 3720 (1020-v2 frames 2700-ppe frames )
+
+    Abelling is working on 2420 frames with 162 workers:
+         * Annotation: 1050 (840-v2 frames 210-ppe frames )
+         * Review: 1370 (30-v2 frames 1340-ppe frames )
+
+Annotation task lifetime (registered → Protex Review)
+
+
+
+
+
+• Abelling_v2: 0 days, 5 hours, 14 minutes average (n=1088)
+• Cogito_v2: 1 day, 17 hours, 45 minutes average (n=85)
+• Sunix_v2: 2 days, 14 hours, 45 minutes average (n=36)
+• abelling-ppe: 0 days, 7 hours, 35 minutes average (n=1366)
+• cogito-ppe: 6 days, 23 hours, 45 minutes average (n=68)
+• sunix-ppe: 1 day, 7 hours, 1 minute average (n=388)
+--------------------
+Sunix_v2
+Protex Review: 36 tasks (1000 frames)
+     151-274 (36 tasks)
+
+
+
+     Total tasks to annotate: 0
+--------------------
+Sunix-ppe
+Annotate     : 228 tasks (6520 frames)
+     436-690 (5 tasks), 672-1039 (223 tasks)
+Review       : 170 tasks (4830 frames)
+     436-690 (3 tasks), 672-1039 (167 tasks)
+Protex Review: 388 tasks (11020 frames)
+     672-1039 (388 tasks)
+
+
+
+     Total tasks to annotate: 398
+--------------------
+Cogito_v2
+Annotate     : 476 tasks (13900 frames)
+     119-369 (13 tasks), 150-263 (66 tasks), 150-972 (6 tasks), 177-69 (6 tasks), 242-765 (20 tasks), 243-1196 (63 tasks), 429-861 (34 tasks), 429-950 (67 tasks), 429-991 (4 tasks), 429-999 (20 tasks), 436-690 (6 tasks), 505-764 (62 tasks), 908-856 (19 tasks), 908-857 (18 tasks), 979-938 (47 tasks), 991-996 (9 tasks), 993-994 (16 tasks)
+Review       : 36 tasks (1020 frames)
+     119-369 (1 task), 429-950 (35 tasks)
+Protex Review: 85 tasks (2440 frames)
+     119-369 (29 tasks), 320-1163 (13 tasks), 429-950 (43 tasks)
+
+
+
+     Total tasks to annotate: 512
+--------------------
+Cogito-ppe
+Annotate     : 115 tasks (3170 frames)
+     320-1078 (18 tasks), 429-950 (52 tasks), 429-991 (1 task), 979-938 (44 tasks)
+Review       : 97 tasks (2700 frames)
+     320-1078 (6 tasks), 429-950 (56 tasks), 429-991 (35 tasks)
+Protex Review: 68 tasks (1792 frames)
+     1000-1161 (5 tasks), 320-1163 (8 tasks), 429-991 (16 tasks), 505-764 (11 tasks), 672-1037 (16 tasks), 672-1038 (6 tasks), 672-1042 (4 tasks), 672-1045 (2 tasks)
+
+
+
+     Total tasks to annotate: 212
+--------------------
+Abelling_v2
+Annotate     : 29 tasks (840 frames)
+     991-995 (29 tasks)
+Review       : 1 tasks (30 frames)
+     991-995 (1 task)
+Protex Review: 1088 tasks (30151 frames)
+     108-373 (59 tasks), 1774008443-1774008464 (7 tasks), 672-1039 (960 tasks), 986-984 (22 tasks), 990-991 (40 tasks)
+
+
+
+     Total tasks to annotate: 30
+--------------------
+Abelling-ppe
+Annotate     : 7 tasks (210 frames)
+     150-263 (7 tasks)
+Review       : 49 tasks (1340 frames)
+     150-263 (49 tasks)
+Protex Review: 1362 tasks (38937 frames)
+     108-373 (187 tasks), 150-263 (452 tasks), 150-972 (43 tasks), 243-1196 (98 tasks), 672-1036 (581 tasks), 672-948 (1 task)
+
+
+
+     Total tasks to annotate: 56
+
+
+
+
+
+To annotate = Annotate + Review stages

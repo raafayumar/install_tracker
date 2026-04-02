@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: install_tracker_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: install_tracker
+      POSTGRES_PASSWORD: install_tracker
+      POSTGRES_DB: install_tracker
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U install_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: install_tracker_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://install_tracker:install_tracker@db:5432/install_tracker"
+    ports:
+      - "8503:8503"
+
+volumes:
+  pgdata:
