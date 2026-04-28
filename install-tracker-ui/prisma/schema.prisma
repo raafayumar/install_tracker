@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ───────────────────────────────────────────────────────────────────
+
+enum pipelinetype {
+  OB
+  PPE
+}
+
+enum activitytype {
+  STAGE_UPDATE
+  COMMENT
+  SUMMARY
+  PARSER_UPDATE
+}
+
+// ── Tables ──────────────────────────────────────────────────────────────────
+
+/// Master record for each customer site installation.
+/// Created either by the Slack parser (skeleton) or by user registration (with details).
+model installs {
+  comp_site_id      String    @id @db.VarChar(50)
+  owner_name        String?   @db.VarChar(255)
+  site_name         String?   @db.VarChar(255)
+  jira_link         String?   @db.VarChar(512)
+  install_type      String?   @default("New Site") @db.VarChar(50)
+  region            String?   @default("US") @db.VarChar(50)
+  status            String?   @default("In-progress") @db.VarChar(50)
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  general_od_model  Boolean   @default(false)
+  general_ppe_model Boolean   @default(false)
+  ob_deployed       Boolean   @default(false)
+  ppe_deployed      Boolean   @default(false)
+  start_date        DateTime? @db.Date
+  end_date          DateTime? @db.Date
+
+  // Relations
+  activities         install_activity[]
+  site_stage_history site_stage_history[]
+}
+
+/// Per-site, per-partner, per-stage history — the single source of truth for pipeline state.
+/// Each row = "On this batch_date, this partner had this many frames for this site+pipeline+stage."
+/// The latest batch for a site IS its current pipeline state.
+model site_stage_history {
+  id            Int          @id @default(autoincrement())
+  batch_id      String       @db.VarChar(50)
+  comp_site_id  String       @db.VarChar(50)
+  partner       String       @db.VarChar(255)
+  pipeline_type pipelinetype
+  stage_name    String       @db.VarChar(100)
+  frames        Int?
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+
+  install installs @relation(fields: [comp_site_id], references: [comp_site_id], onDelete: Cascade)
+
+  @@index([batch_id])
+  @@index([comp_site_id])
+}
+
+/// Pre-aggregated partner-level metrics for analytics charts.
+/// Each row = "In this batch, this partner had this total tasks/frames for this stage+pipeline across all sites."
+/// Could be derived from site_stage_history, but pre-aggregated for query performance.
+model stage_snapshots {
+  id            Int          @id @default(autoincrement())
+  batch_id      String       @db.VarChar(50)
+  partner       String       @db.VarChar(255)
+  pipeline_type pipelinetype
+  stage_name    String       @db.VarChar(100)
+  tasks         Int          @default(0)
+  frames        Int          @default(0)
+  datasets      Json?
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+
+  @@index([batch_id])
+}
+
+/// Audit log for all install-related actions.
+model install_activity {
+  id            Int          @id @default(autoincrement())
+  comp_site_id  String       @db.VarChar(50)
+  user_name     String?      @db.VarChar(255)
+  activity_type activitytype
+  message       String?
+  metadata      Json?
+  created_at    DateTime?    @default(now()) @db.Timestamp(6)
+
+  install installs @relation(fields: [comp_site_id], references: [comp_site_id], onDelete: Cascade)
+}
+
+/// Simple user lookup table.
+model users {
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(255)
+}
