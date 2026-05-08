@@ -7,16 +7,23 @@
  *   3. Complete     → sorted by end_date DESC (most recently completed first)
  *   4. Cancelled    → sorted by created_at DESC
  *
- * Status display: DB stores "On Hold" / "Complete"; UI shows "Blocked" / "Done".
- * See lib/utils.ts → STATUS_DISPLAY to change labels.
+ * Column order:
+ *   ID | Name | [Owner] | Type | Region | Status | OB Pipeline | PPE Pipeline |
+ *   OB Model | PPE Model | Latest Comment | Start | Days
  *
- * Pipeline state comes from `install.pipeline_state` (derived from site_stage_history)
- * — correctly handles multiple partners per pipeline type and per-site frame counts.
+ * Column sizing strategy:
+ *   - Compact columns (Type, Region, Status, OB Model, PPE Model, Start, Days):
+ *     width=1% + whitespace-nowrap → browser shrinks them to content width
+ *   - Pipeline columns: capped at maxWidth 160px (content can stack vertically)
+ *   - Name: min 140px, grows freely
+ *   - Latest Comment: min 220px, grows freely
  *
  * HOW TO MODIFY:
- * - To add a column: add a <Th> in thead, a <td> in the row, and update the colSpan in the empty-state row.
- * - To change sort order: edit the `sorted` computation below.
- * - To change comment display (author, date format): edit the "Latest Comment" td block.
+ * - To reorder columns: move the matching <Th> + <td> blocks together.
+ * - To change which columns are compact: toggle the `compact` prop on <Th> and add/remove
+ *   `whitespace-nowrap` on the corresponding <td>.
+ * - To change sort order: edit `sortInstalls()` below.
+ * - To change comment display: edit the "Latest Comment" td block.
  */
 
 "use client";
@@ -66,21 +73,20 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[rgba(0,0,0,0.3)]">
-              <Th>ID</Th>
-              <Th>Name</Th>
-              {showOwner && <Th>Owner</Th>}
-              <Th>Type</Th>
-              <Th>Region</Th>
-              <Th>Status</Th>
-              {/* Narrower pipeline columns — they stack partner + stage badges vertically */}
-              <Th width={160}>OB Pipeline</Th>
-              <Th width={160}>PPE Pipeline</Th>
-              <Th>OB Model</Th>
-              <Th>PPE Model</Th>
-              <Th>Start</Th>
-              <Th>Days</Th>
-              {/* Wider comments column so messages aren't too truncated */}
-              <Th width={260}>Latest Comment</Th>
+              {/* compact=true → width:1% + whitespace-nowrap → shrinks to content */}
+              <Th compact>ID</Th>
+              <Th minWidth={140}>Name</Th>
+              {showOwner && <Th compact>Owner</Th>}
+              <Th compact>Type</Th>
+              <Th compact>Region</Th>
+              <Th compact>Status</Th>
+              <Th maxWidth={160}>OB Pipeline</Th>
+              <Th maxWidth={160}>PPE Pipeline</Th>
+              <Th compact>OB Model</Th>
+              <Th compact>PPE Model</Th>
+              <Th minWidth={220}>Latest Comment</Th>
+              <Th compact>Start</Th>
+              <Th compact>Days</Th>
             </tr>
           </thead>
           <tbody>
@@ -94,8 +100,8 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
                   key={install.comp_site_id}
                   className="border-b border-dashed border-border bg-card hover:bg-card-hi transition-colors"
                 >
-                  {/* ID */}
-                  <td className="px-4 py-3">
+                  {/* ID — compact */}
+                  <td className="px-4 py-3 whitespace-nowrap">
                     <Link
                       href={`/install/${install.comp_site_id}`}
                       className="text-sky-500 font-bold hover:underline"
@@ -104,26 +110,26 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
                     </Link>
                   </td>
 
-                  {/* Name */}
-                  <td className="px-4 py-3 text-text-primary font-medium max-w-[180px] truncate">
-                    {install.site_name || "—"}
+                  {/* Name — wide, truncates if very long */}
+                  <td className="px-4 py-3 text-text-primary font-medium" style={{ minWidth: 140, maxWidth: 220 }}>
+                    <span className="block truncate">{install.site_name || "—"}</span>
                   </td>
 
-                  {/* Owner (only in All view) */}
+                  {/* Owner (only in All view) — compact */}
                   {showOwner && (
-                    <td className="px-4 py-3 text-text-secondary font-medium">{install.owner_name}</td>
+                    <td className="px-4 py-3 text-text-secondary font-medium whitespace-nowrap">{install.owner_name}</td>
                   )}
 
-                  {/* Type */}
-                  <td className="px-4 py-3"><TypeBadge type={install.install_type} /></td>
+                  {/* Type — compact badge */}
+                  <td className="px-4 py-3 whitespace-nowrap"><TypeBadge type={install.install_type} /></td>
 
-                  {/* Region */}
-                  <td className="px-4 py-3"><RegionBadge region={install.region} /></td>
+                  {/* Region — compact badge */}
+                  <td className="px-4 py-3 whitespace-nowrap"><RegionBadge region={install.region} /></td>
 
-                  {/* Status — badge displays "Blocked"/"Done" via getStatusDisplay() */}
-                  <td className="px-4 py-3"><StatusBadge status={install.status} /></td>
+                  {/* Status — compact badge */}
+                  <td className="px-4 py-3 whitespace-nowrap"><StatusBadge status={install.status} /></td>
 
-                  {/* OB Pipeline */}
+                  {/* OB Pipeline — capped width, content stacks vertically */}
                   <td className="px-4 py-3" style={{ maxWidth: 160 }}>
                     <PipelineCell state={obState} />
                   </td>
@@ -133,28 +139,18 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
                     <PipelineCell state={ppeState} />
                   </td>
 
-                  {/* OB Model — only shown when Complete or general flag is true */}
-                  <td className="px-4 py-3">
+                  {/* OB Model — compact, short text */}
+                  <td className="px-4 py-3 whitespace-nowrap">
                     <ModelCell general={install.general_od_model} deployed={install.ob_deployed} status={install.status} />
                   </td>
 
-                  {/* PPE Model */}
-                  <td className="px-4 py-3">
+                  {/* PPE Model — compact */}
+                  <td className="px-4 py-3 whitespace-nowrap">
                     <ModelCell general={install.general_ppe_model} deployed={install.ppe_deployed} status={install.status} />
                   </td>
 
-                  {/* Start date */}
-                  <td className="px-4 py-3 text-text-tertiary text-xs whitespace-nowrap">
-                    {formatDate(install.start_date)}
-                  </td>
-
-                  {/* Days to complete */}
-                  <td className="px-4 py-3 text-text-tertiary text-xs text-center">
-                    {days !== null ? days : "—"}
-                  </td>
-
-                  {/* Latest Comment — shows most recent user comment + author + date */}
-                  <td className="px-4 py-3" style={{ minWidth: 200, maxWidth: 260 }}>
+                  {/* Latest Comment — wide, 2-line clamp */}
+                  <td className="px-4 py-3" style={{ minWidth: 220, maxWidth: 320 }}>
                     {install.latest_comment?.message ? (
                       <div className="flex flex-col gap-0.5">
                         <span className="text-text-secondary text-xs line-clamp-2 leading-snug">
@@ -167,6 +163,16 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
                     ) : (
                       <span className="text-text-tertiary text-xs">—</span>
                     )}
+                  </td>
+
+                  {/* Start date — compact */}
+                  <td className="px-4 py-3 text-text-tertiary text-xs whitespace-nowrap">
+                    {formatDate(install.start_date)}
+                  </td>
+
+                  {/* Days to complete — compact */}
+                  <td className="px-4 py-3 text-text-tertiary text-xs text-center whitespace-nowrap">
+                    {days !== null ? days : "—"}
                   </td>
                 </tr>
               );
@@ -189,7 +195,7 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
  * Renders the pipeline state for one pipeline type (OB or PPE).
  * Shows all partners and their stages with per-site frame counts.
  * If state is null → no pipeline data exists at all (show dash).
- * If state.no_data → the pipeline existed but has no data in the latest batch.
+ * If state.no_data → pipeline existed but has no data in the latest batch.
  */
 function PipelineCell({ state }: { state: PipelineTypeState | null }) {
   if (!state) return <span className="text-text-tertiary text-xs">—</span>;
@@ -256,11 +262,32 @@ function ModelCell({ general, deployed, status }: { general: boolean; deployed: 
   );
 }
 
-function Th({ children, width }: { children: React.ReactNode; width?: number }) {
+/**
+ * Table header cell.
+ * - compact: width=1% + whitespace-nowrap → column shrinks to its content width
+ * - minWidth: sets a minimum px width (for wide columns like Name, Comments)
+ * - maxWidth: caps the column (for pipeline columns)
+ */
+function Th({
+  children,
+  compact,
+  minWidth,
+  maxWidth,
+}: {
+  children: React.ReactNode;
+  compact?: boolean;
+  minWidth?: number;
+  maxWidth?: number;
+}) {
+  const style: React.CSSProperties = {};
+  if (compact) { style.width = "1%"; }
+  if (minWidth) { style.minWidth = minWidth; }
+  if (maxWidth) { style.maxWidth = maxWidth; style.width = maxWidth; }
+
   return (
     <th
       className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-text-tertiary whitespace-nowrap"
-      style={width ? { width, minWidth: width } : undefined}
+      style={style}
     >
       {children}
     </th>
