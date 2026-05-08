@@ -33,5 +33,21 @@ services:
     ports:
       - "8503:8503"
 
+  nextjs:
+    build:
+      context: ../install-tracker-ui
+      dockerfile: Dockerfile
+    container_name: install_tracker_nextjs
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://install_tracker:install_tracker@db:5432/install_tracker"
+      PORT: "3001"
+      HOSTNAME: "0.0.0.0"
+    ports:
+      - "3001:3001"
+
 volumes:
   pgdata:
