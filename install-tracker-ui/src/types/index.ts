@@ -34,6 +34,8 @@ export interface Install {
   created_at: string;
   /** Current pipeline state — derived from latest batch in site_stage_history */
   pipeline_state?: PipelineState;
+  /** Latest user comment on this install (null if none) */
+  latest_comment?: { message: string | null; user_name: string | null; created_at: string } | null;
 }
 
 // ── Pipeline state (derived, not stored) ────────────────────────────────────

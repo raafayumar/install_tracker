@@ -86,11 +86,25 @@ export async function GET(request: NextRequest) {
       orderBy: { comp_site_id: "asc" },
     });
 
-    // Enrich each install with its current pipeline state from site_stage_history
+    // Fetch latest COMMENT activity for all installs in one query (not N+1)
+    const siteIds = installs.map((i) => i.comp_site_id);
+    const allComments = await prisma.install_activity.findMany({
+      where: { comp_site_id: { in: siteIds }, activity_type: "COMMENT" },
+      orderBy: { created_at: "desc" },
+      select: { comp_site_id: true, message: true, user_name: true, created_at: true },
+    });
+    // Keep only the first (latest) entry per site
+    const latestCommentMap = new Map<string, typeof allComments[0]>();
+    for (const c of allComments) {
+      if (!latestCommentMap.has(c.comp_site_id)) latestCommentMap.set(c.comp_site_id, c);
+    }
+
+    // Enrich each install with pipeline state + latest comment
     const enriched = await Promise.all(
       installs.map(async (install) => ({
         ...install,
         pipeline_state: await getPipelineState(install.comp_site_id),
+        latest_comment: latestCommentMap.get(install.comp_site_id) ?? null,
       }))
     );
 

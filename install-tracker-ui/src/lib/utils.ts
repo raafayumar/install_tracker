@@ -110,6 +110,23 @@ export function formatDateTime(dateStr: string): string {
   });
 }
 
+// ---------- Status display names ----------
+
+/**
+ * Maps DB status values → UI display labels.
+ * DB stores "On Hold" and "Complete"; UI shows "Blocked" and "Done".
+ * To change a display name, edit this map. StatusBadge and filter pills use it automatically.
+ */
+export const STATUS_DISPLAY: Partial<Record<InstallStatus, string>> = {
+  "On Hold": "Blocked",
+  "Complete": "Done",
+};
+
+/** Returns the UI display name for a status (falls back to the raw DB value). */
+export function getStatusDisplay(status: InstallStatus): string {
+  return STATUS_DISPLAY[status] ?? status;
+}
+
 // ---------- Status sort ----------
 
 const STATUS_SORT_ORDER: Record<string, number> = {

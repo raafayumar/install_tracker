@@ -9,7 +9,7 @@
 
 "use client";
 
-import { STATUS_COLORS, REGION_COLORS, TYPE_COLORS, STAGE_COLORS, PIPELINE_COLORS, getPartnerColor } from "@/lib/utils";
+import { STATUS_COLORS, REGION_COLORS, TYPE_COLORS, STAGE_COLORS, PIPELINE_COLORS, getPartnerColor, getStatusDisplay } from "@/lib/utils";
 import { InstallStatus, Region, InstallType, StageName, PipelineType } from "@/types";
 
 interface BadgeProps {
@@ -40,7 +40,8 @@ function BaseBadge({ children, bg, textColor, dot, dotColor, className = "" }: B
 
 export function StatusBadge({ status }: { status: InstallStatus }) {
   const c = STATUS_COLORS[status];
-  return <BaseBadge bg={c.bg} textColor={c.text} dot dotColor={c.dot}>{status}</BaseBadge>;
+  // Display "Blocked" for On Hold and "Done" for Complete — DB values are unchanged
+  return <BaseBadge bg={c.bg} textColor={c.text} dot dotColor={c.dot}>{getStatusDisplay(status)}</BaseBadge>;
 }
 
 export function RegionBadge({ region }: { region: Region }) {

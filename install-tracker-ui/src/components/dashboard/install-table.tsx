@@ -1,48 +1,64 @@
 /**
  * Dashboard install table — main data grid showing all installs.
  *
- * Pipeline state now comes from `install.pipeline_state` (derived from site_stage_history)
- * instead of the old `install.pipelines` array. This correctly handles:
- *   - Multiple partners per pipeline type
- *   - Per-site frame counts (not aggregates)
- *   - "No data" detection (pipeline_state is null or missing)
+ * Sort order (fixed, not user-adjustable):
+ *   1. In-progress  → sorted by created_at DESC (newest first)
+ *   2. On Hold      → sorted by created_at DESC
+ *   3. Complete     → sorted by end_date DESC (most recently completed first)
+ *   4. Cancelled    → sorted by created_at DESC
+ *
+ * Status display: DB stores "On Hold" / "Complete"; UI shows "Blocked" / "Done".
+ * See lib/utils.ts → STATUS_DISPLAY to change labels.
+ *
+ * Pipeline state comes from `install.pipeline_state` (derived from site_stage_history)
+ * — correctly handles multiple partners per pipeline type and per-site frame counts.
+ *
+ * HOW TO MODIFY:
+ * - To add a column: add a <Th> in thead, a <td> in the row, and update the colSpan in the empty-state row.
+ * - To change sort order: edit the `sorted` computation below.
+ * - To change comment display (author, date format): edit the "Latest Comment" td block.
  */
 
 "use client";
 
 import Link from "next/link";
-import { ArrowUpDown } from "lucide-react";
 import { Install, PipelineTypeState } from "@/types";
 import { StatusBadge, RegionBadge, TypeBadge, PartnerBadge, StageBadge, NoDataBadge, DeployedBadge } from "@/components/ui/badge";
-import { formatDate, daysToComplete, generateAutoSummary, sortByStatus } from "@/lib/utils";
-import { useState } from "react";
+import { formatDate, daysToComplete } from "@/lib/utils";
 
 interface InstallTableProps {
   installs: Install[];
   showOwner: boolean;
 }
 
-type SortKey = "id" | "status" | "start" | "days";
+/** Fixed sort: groups by status priority, then within each group by date (DESC). */
+const STATUS_GROUP_ORDER: Record<string, number> = {
+  "In-progress": 0,
+  "On Hold": 1,
+  "Complete": 2,
+  "Cancelled": 3,
+};
+
+function sortInstalls(a: Install, b: Install): number {
+  const groupA = STATUS_GROUP_ORDER[a.status] ?? 99;
+  const groupB = STATUS_GROUP_ORDER[b.status] ?? 99;
+
+  // Primary: group order
+  if (groupA !== groupB) return groupA - groupB;
+
+  // Secondary: Complete installs sorted by end_date DESC (latest completed on top)
+  if (a.status === "Complete") {
+    const endA = a.end_date ? new Date(a.end_date).getTime() : 0;
+    const endB = b.end_date ? new Date(b.end_date).getTime() : 0;
+    return endB - endA;
+  }
+
+  // All other groups: sorted by created_at DESC (newest first)
+  return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+}
 
 export function InstallTable({ installs, showOwner }: InstallTableProps) {
-  const [sortKey, setSortKey] = useState<SortKey>("status");
-  const [sortAsc, setSortAsc] = useState(true);
-
-  const sorted = [...installs].sort((a, b) => {
-    let cmp = 0;
-    switch (sortKey) {
-      case "status": cmp = sortByStatus(a, b); break;
-      case "id": cmp = a.comp_site_id.localeCompare(b.comp_site_id); break;
-      case "start": cmp = new Date(a.start_date).getTime() - new Date(b.start_date).getTime(); break;
-      case "days": cmp = (daysToComplete(a) ?? 999) - (daysToComplete(b) ?? 999); break;
-    }
-    return sortAsc ? cmp : -cmp;
-  });
-
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) setSortAsc(!sortAsc);
-    else { setSortKey(key); setSortAsc(true); }
-  };
+  const sorted = [...installs].sort(sortInstalls);
 
   return (
     <div className="rounded-[12px] border border-border overflow-hidden shadow-[var(--shadow-sm)]">
@@ -50,19 +66,21 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[rgba(0,0,0,0.3)]">
-              <SortTh label="ID" sortKey="id" current={sortKey} asc={sortAsc} onSort={toggleSort} />
+              <Th>ID</Th>
               <Th>Name</Th>
               {showOwner && <Th>Owner</Th>}
               <Th>Type</Th>
               <Th>Region</Th>
-              <SortTh label="Status" sortKey="status" current={sortKey} asc={sortAsc} onSort={toggleSort} />
-              <Th>OB Pipeline</Th>
-              <Th>PPE Pipeline</Th>
+              <Th>Status</Th>
+              {/* Narrower pipeline columns — they stack partner + stage badges vertically */}
+              <Th width={160}>OB Pipeline</Th>
+              <Th width={160}>PPE Pipeline</Th>
               <Th>OB Model</Th>
               <Th>PPE Model</Th>
-              <SortTh label="Start" sortKey="start" current={sortKey} asc={sortAsc} onSort={toggleSort} />
-              <SortTh label="Days" sortKey="days" current={sortKey} asc={sortAsc} onSort={toggleSort} />
-              <Th>Summary</Th>
+              <Th>Start</Th>
+              <Th>Days</Th>
+              {/* Wider comments column so messages aren't too truncated */}
+              <Th width={260}>Latest Comment</Th>
             </tr>
           </thead>
           <tbody>
@@ -91,7 +109,7 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
                     {install.site_name || "—"}
                   </td>
 
-                  {/* Owner */}
+                  {/* Owner (only in All view) */}
                   {showOwner && (
                     <td className="px-4 py-3 text-text-secondary font-medium">{install.owner_name}</td>
                   )}
@@ -102,20 +120,20 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
                   {/* Region */}
                   <td className="px-4 py-3"><RegionBadge region={install.region} /></td>
 
-                  {/* Status */}
+                  {/* Status — badge displays "Blocked"/"Done" via getStatusDisplay() */}
                   <td className="px-4 py-3"><StatusBadge status={install.status} /></td>
 
-                  {/* OB Pipeline — shows all partners + their stages */}
-                  <td className="px-4 py-3">
+                  {/* OB Pipeline */}
+                  <td className="px-4 py-3" style={{ maxWidth: 160 }}>
                     <PipelineCell state={obState} />
                   </td>
 
                   {/* PPE Pipeline */}
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" style={{ maxWidth: 160 }}>
                     <PipelineCell state={ppeState} />
                   </td>
 
-                  {/* OB Model — only show "Site-Specific" when Complete or general is explicitly set */}
+                  {/* OB Model — only shown when Complete or general flag is true */}
                   <td className="px-4 py-3">
                     <ModelCell general={install.general_od_model} deployed={install.ob_deployed} status={install.status} />
                   </td>
@@ -125,19 +143,30 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
                     <ModelCell general={install.general_ppe_model} deployed={install.ppe_deployed} status={install.status} />
                   </td>
 
-                  {/* Start */}
+                  {/* Start date */}
                   <td className="px-4 py-3 text-text-tertiary text-xs whitespace-nowrap">
                     {formatDate(install.start_date)}
                   </td>
 
-                  {/* Days */}
+                  {/* Days to complete */}
                   <td className="px-4 py-3 text-text-tertiary text-xs text-center">
                     {days !== null ? days : "—"}
                   </td>
 
-                  {/* Summary */}
-                  <td className="px-4 py-3 text-text-secondary text-xs max-w-[160px] truncate">
-                    {generateAutoSummary(install)}
+                  {/* Latest Comment — shows most recent user comment + author + date */}
+                  <td className="px-4 py-3" style={{ minWidth: 200, maxWidth: 260 }}>
+                    {install.latest_comment?.message ? (
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-text-secondary text-xs line-clamp-2 leading-snug">
+                          {install.latest_comment.message}
+                        </span>
+                        <span className="text-text-tertiary text-[10px] whitespace-nowrap">
+                          {install.latest_comment.user_name ?? "Unknown"} · {formatDate(install.latest_comment.created_at)}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-text-tertiary text-xs">—</span>
+                    )}
                   </td>
                 </tr>
               );
@@ -160,13 +189,11 @@ export function InstallTable({ installs, showOwner }: InstallTableProps) {
  * Renders the pipeline state for one pipeline type (OB or PPE).
  * Shows all partners and their stages with per-site frame counts.
  * If state is null → no pipeline data exists at all (show dash).
- * If state.no_data → the pipeline existed but has no data in latest batch.
+ * If state.no_data → the pipeline existed but has no data in the latest batch.
  */
 function PipelineCell({ state }: { state: PipelineTypeState | null }) {
-  // No pipeline data at all for this type
   if (!state) return <span className="text-text-tertiary text-xs">—</span>;
 
-  // Pipeline exists but no_data in latest batch
   if (state.no_data || state.stages.length === 0) {
     return (
       <div className="flex flex-col gap-1">
@@ -206,9 +233,9 @@ function PipelineCell({ state }: { state: PipelineTypeState | null }) {
 }
 
 /**
- * Model cell — shows General/Site-Specific label.
- * Only displays model type when status is Complete or general flag is explicitly true.
- * Otherwise shows "—" to avoid misleading "Site-Specific" on in-progress installs.
+ * Model cell — shows General/Site-Specific + Deployed badge.
+ * Only shows model type when status is Complete or the general flag is explicitly true.
+ * Shows "—" for in-progress installs to avoid misleading "Site-Specific" label.
  */
 function ModelCell({ general, deployed, status }: { general: boolean; deployed: boolean; status: string }) {
   const showModelType = status === "Complete" || general;
@@ -229,29 +256,13 @@ function ModelCell({ general, deployed, status }: { general: boolean; deployed: 
   );
 }
 
-function Th({ children }: { children: React.ReactNode }) {
-  return (
-    <th className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-text-tertiary whitespace-nowrap">
-      {children}
-    </th>
-  );
-}
-
-function SortTh({
-  label, sortKey, current, asc, onSort,
-}: {
-  label: string; sortKey: SortKey; current: SortKey; asc: boolean; onSort: (k: SortKey) => void;
-}) {
-  const isActive = current === sortKey;
+function Th({ children, width }: { children: React.ReactNode; width?: number }) {
   return (
     <th
-      className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-text-tertiary whitespace-nowrap cursor-pointer hover:text-sky-500 transition-colors"
-      onClick={() => onSort(sortKey)}
+      className="px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-text-tertiary whitespace-nowrap"
+      style={width ? { width, minWidth: width } : undefined}
     >
-      <span className="flex items-center gap-1">
-        {label}
-        <ArrowUpDown size={12} className={isActive ? "text-sky-500" : "opacity-30"} />
-      </span>
+      {children}
     </th>
   );
 }

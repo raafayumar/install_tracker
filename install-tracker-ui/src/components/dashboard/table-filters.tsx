@@ -38,11 +38,12 @@ export function TableFilters({ filters, onChange }: TableFiltersProps) {
         )}
       </div>
 
-      {/* Status filter */}
+      {/* Status filter — options use DB values; labels show the UI display names */}
       <FilterPill
         label="Status"
         value={filters.status}
         options={["All", "In-progress", "Complete", "On Hold", "Cancelled"]}
+        displayLabels={{ "Complete": "Done", "On Hold": "Blocked" }}
         onChange={(v) => set("status", v as Filters["status"])}
       />
 
@@ -69,11 +70,14 @@ function FilterPill({
   label,
   value,
   options,
+  displayLabels,
   onChange,
 }: {
   label: string;
   value: string;
   options: string[];
+  /** Optional map of option value → display label (e.g. "On Hold" → "Blocked") */
+  displayLabels?: Record<string, string>;
   onChange: (v: string) => void;
 }) {
   return (
@@ -84,7 +88,7 @@ function FilterPill({
     >
       {options.map((opt) => (
         <option key={opt} value={opt} className="bg-card">
-          {opt === "All" ? `${label}: All` : opt}
+          {opt === "All" ? `${label}: All` : (displayLabels?.[opt] ?? opt)}
         </option>
       ))}
     </select>
